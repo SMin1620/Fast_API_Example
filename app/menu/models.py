@@ -14,7 +14,7 @@ class Menu(SQLModel, table=True):
     price: Optional[int] = None
     menu_image: Optional[HttpUrl] = None
 
-    store_id: int = Field(default=None, foreign_key='store.id')
+    store_id: Optional[int] = Field(default=None, foreign_key='store.id')
     store: Optional["Store"] = Relationship(back_populates='menu')
 
 

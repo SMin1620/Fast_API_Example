@@ -1,9 +1,9 @@
-from typing import Optional, List, TYPE_CHECKING
+from typing import Optional, List, TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 from sqlmodel import SQLModel, Field, Relationship
 
 if TYPE_CHECKING:
-    from app.menu.models import Menu
+    from app.menu.models import Menu, MenuRead
     # from app.poll.models import PollSelect
 
 
@@ -27,14 +27,25 @@ class Store(StoreBase, table=True):
 
 
 # 상점 조회 모델
-class StoreRead(SQLModel):
+class StoreRead(StoreBase):
     id: int
     name: str
     address: str
 
+    poll: Any
+
+
+class StoreReadWithMenu(StoreRead):
+    menus: List["MenuRead"] = []
+
 
 # 상점 생성
 class StoreCreate(StoreBase):
+    pass
+
+
+# 상점 수정
+class StoreUpdate(SQLModel):
     pass
 
 

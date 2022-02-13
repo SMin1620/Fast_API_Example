@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from typing import List, Any
 from sqlmodel import Session, select
-from sqlalchemy.exc import IntegrityError
 
 from database.session import get_session
 from app.store.models import StoreRead, Store, StoreCreate

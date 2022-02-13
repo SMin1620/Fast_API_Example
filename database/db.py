@@ -18,7 +18,7 @@ SQLALCHEMY_DATABASE_URL = f'{app["name"]}://{app["user"]}:{app["password"]}@{app
 # SQLALCHEMY_DATABASE_URL = "postgresql://user:password@postgresserver/db"
 
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, encoding='utf-8'
+    SQLALCHEMY_DATABASE_URL, encoding='utf-8', echo=True
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

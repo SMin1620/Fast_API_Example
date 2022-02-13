@@ -4,7 +4,7 @@ from sqlmodel import Session, select
 
 from database.session import get_session
 from app.poll.models import Poll, PollCreate, PollContent, PollRead
-from app.poll.service import service
+from app.poll.service import PollService
 
 
 router = APIRouter()
@@ -21,6 +21,11 @@ def read_poll(
     return polls
 
 
-# @router.post("/", response_model=PollCreate, status_code=status.HTTP_200_OK)
-# def create_poll
+@router.post("/", response_model=PollCreate, status_code=status.HTTP_200_OK)
+def create_poll(
+        *,
+        session: Session = Depends(get_session),
+        object_data: PollCreate,
+):
+    return PollService(session, object_data=object_data)
 

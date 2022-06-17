@@ -1,10 +1,9 @@
 from app.base import Service
 
-from .models import Store, StoreCreate, StoreUpdate
+from app.store.models import Article, ArticleCreate, ArticleUpdate
 
-
-class StoreService(Service[Store, StoreCreate, StoreUpdate]):
+class StoreService(Service[Article, ArticleCreate, ArticleUpdate]):
     pass
 
 
-service = StoreService(Store)
+service = StoreService(Article)

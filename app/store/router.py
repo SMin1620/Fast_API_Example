@@ -1,61 +1,93 @@
+import datetime
+
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from typing import List, Any
 from sqlmodel import Session, select
+import logging
+import logstash
 
+from app.logger import formatter
 from database.session import get_session
-from app.store.models import StoreRead, Store, StoreCreate
 from app.store.exceptions import StoreNotFoundException
 from app.store.service import service
+from app.store.models import Article
+from app.my_log import back_logger_info
 
 router = APIRouter()
 
 
-# @router.get("", response_model=List[StoreRead], status_code=status.HTTP_200_OK)
-# def read_store(session: Session = Depends(get_session)):
-#     return Service.find_all(session)
+# logger
+log_format = logging.Formatter('\n[%(levelname)s|%(name)s|%(filename)s:%(lineno)s] %(asctime)s > %(message)s')
 
+def create_logger(logger_name):
+    logger = logging.getLogger(logger_name)
 
-# @router.get("", response_model=List[StoreRead], status_code=status.HTTP_200_OK)
-# def read_stores(
-#     *,
-#     session: Session = Depends(get_session),
-#     offset: int = 0,
-#     limit: int = Query(default=100, lte=100),
-#     id: Any
-# ):
-#     stores = session.exec(select(Store).offset(offset).limit(limit)).all()
-#     return stores
+    # logger already exists
+    if len(logger.handlers) > 0:
+        return logger
+
+    logger.setLevel(logging.INFO)
+    logger.addHandler(logstash.TCPLogstashHandler('34.64.142.109', 5044, version=1))
+
+    filehandler = logging.FileHandler('/Users/iseungmin/PycharmProjects/Fast_API_Example/logs/logfile_{:%Y%m%d}.log'.format(datetime.datetime.now()), encoding='utf-8')
+    filehandler.setFormatter(formatter)
+    logger.addHandler(filehandler)
+
+    logger.error('python-logstash: test logstash error message.')
+    logger.info('python-logstash: test logstash info message.')
+    logger.warning('python-logstash: test logstash warning message.')
+
+    return logger
+
 
 # test
-@router.get("", response_model=List[StoreRead], status_code=status.HTTP_200_OK)
+@router.get("", response_model=List[Article], status_code=status.HTTP_200_OK)
 def read_stores(session: Session = Depends(get_session)):
+
+    logger = create_logger('elk-logger')
+    logger.info('hello elk-logstash')
+    print(logger)
+
     return service.find_all(session)
 
 
 # ANCHOR: board document 조회
-@router.get("/{store_id}", response_model=StoreRead, status_code=status.HTTP_200_OK)
+@router.get("/{article_id}", response_model=Article, status_code=status.HTTP_200_OK)
 def read_board(
     *,
     session: Session = Depends(get_session),
-    store_id: int,
+    article_id: int,
 ):
-    store = service.find_one(session, store_id)
-    if not store:
+    article = service.find_one(session, article_id)
+    if not article:
         raise StoreNotFoundException()
 
-    return store
+    logger = create_logger('elk-test-logger')
+    logger.info('hello elk-test-logstash')
+    print(logger)
+
+    return article
 
 
-# 상점 생성
-@router.post("/create", response_model=StoreRead, status_code=status.HTTP_201_CREATED)
-def create_store(
-        *,
-        session: Session = Depends(get_session),
-        object_in: StoreCreate
-):
-    db_store = Store.from_orm(object_in)
-    session.add(db_store)
-    session.commit()
-    session.refresh(db_store)
-    return db_store
+# test log 출력
+@router.get("/")
+def elk_test_show():
+
+    logger = create_logger('elk-test-logger')
+    logger.info('hello elk-test-logstash 4')
+    print(logger)
+
+    print(logger)
+
+    return "hello world!"
+
+
+@router.get('log/')
+def elk_router():
+    back_logger_info("hello world elk")
+    return "elk"
+
+
+
+
 
